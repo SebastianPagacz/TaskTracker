@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace TaskTracker.Enums;
 
-public enum TaskStatus
+public enum TaskTrackerStatus
 {
     ToDo = 0,
     InProgress = 1,
