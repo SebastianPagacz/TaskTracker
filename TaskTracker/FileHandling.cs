@@ -9,7 +9,10 @@ namespace TaskTracker;
 
 public class FileHandling
 {
-    private static readonly string _fileName = "Tasks.json";
+    private static string sCurrentDirectory = AppDomain.CurrentDomain.BaseDirectory;
+    private static string sFile = Path.Combine(sCurrentDirectory, @"..\..\..\JsonData\Tasks.json");
+    private static readonly string _fileName = Path.GetFullPath(sFile);
+
     // Gets file content, if file is empty initializes new empty dictionary
     public static void GetFileContent()
     {

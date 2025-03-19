@@ -32,16 +32,13 @@ public class TaskHandling
 
     public static void UpdateTask(int taskId, string description)
     {
-        // If id is not in the Dictionary throw exception TODO: change the exception
-        if (!IdTasks.ContainsKey(taskId))
+        if (IdTasks.ContainsKey(taskId))
         {
-            throw new Exception("There is no task coresponding");
+            // Updates tasks Description and UpdatedAt accordingly, then saves the file
+            IdTasks[taskId].Description = description;
+            IdTasks[taskId].UpdatedAt = DateTime.Now;
+            FileHandling.SaveToFile();
         }
-
-        // Updates tasks Description and UpdatedAt accordingly, then saves the file
-        IdTasks[taskId].Description = description;
-        IdTasks[taskId].UpdatedAt = DateTime.Now;
-        FileHandling.SaveToFile();
     }
 
     public static void RemoveTask(int taskId)
@@ -51,13 +48,8 @@ public class TaskHandling
         {
             IdTasks.Remove(taskId);
             Console.WriteLine("Task removed");
+            FileHandling.SaveToFile();
         }
-        else
-        {
-            // TODO: custom exception
-            throw new Exception("There is no task coresponding");
-        }
-        FileHandling.SaveToFile();
     }
     // Status manipulaton methods
     public static void ChangeStatus(int taskId, string newStatus)
@@ -75,12 +67,15 @@ public class TaskHandling
             {
                 case "to-do":
                     IdTasks[taskId].TaskStatus = Enums.TaskTrackerStatus.ToDo;
+                    IdTasks[taskId].UpdatedAt = DateTime.Now;
                     break;
                 case "in-progress":
                     IdTasks[taskId].TaskStatus = Enums.TaskTrackerStatus.InProgress;
+                    IdTasks[taskId].UpdatedAt = DateTime.Now;
                     break;
                 case "completed":
                     IdTasks[taskId].TaskStatus = Enums.TaskTrackerStatus.Completed;
+                    IdTasks[taskId].UpdatedAt = DateTime.Now;
                     break;
             }
         }
@@ -92,8 +87,41 @@ public class TaskHandling
         return newStatus;
     }
 
-    // Iterates through the dictionary and provides details about all the tasks present
-    public static void ShowTasks()
+    // Iterates through the dictionary to show all the task with given status
+
+    public static void ShowTasksStatuses(string taskStatus)
+    {
+        // Prases string into Enums.TaskTrackerStatus
+        Enums.TaskTrackerStatus enumTaskStatus = TrackerStatusPraser(taskStatus);
+        Console.WriteLine($"{enumTaskStatus} tasks:");
+        foreach (KeyValuePair<int, Task> task in IdTasks)
+        {
+            if (task.Value.TaskStatus == enumTaskStatus)
+            {
+                Console.WriteLine($"{task.Key} : {task.Value.Description} \nCreated at: {task.Value.CreatedAt}\nUpdated at: {task.Value.UpdatedAt}\nTask status: {task.Value.TaskStatus}");
+            }
+        }
+    }
+
+    // Prases string into Enums.TaskTrackerStatus
+    private static Enums.TaskTrackerStatus TrackerStatusPraser(string taskStatus)
+    {
+        taskStatus = taskStatus.ToLower();
+        switch (taskStatus)
+        {
+            case "to-do":
+                return Enums.TaskTrackerStatus.ToDo;
+            case "in-progress":
+                return Enums.TaskTrackerStatus.InProgress;
+            case "completed":
+                return Enums.TaskTrackerStatus.Completed;
+            default:
+                Console.WriteLine("invalid input");
+                break;
+        }
+        throw new Exception("invalid input");
+    }
+    public static void ShowAllTasks()
     {
         foreach(KeyValuePair<int, Task> task in IdTasks)
         {
