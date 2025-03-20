@@ -23,7 +23,7 @@ public class TaskHandling
             counter++;   
         }
 
-        Console.WriteLine($"Task ID: {counter} added to the task");
+        Console.WriteLine($"Task added successfully (ID: {counter})");
         
         // Adds id to the dictionary and saves the file
         IdTasks.Add(counter, task);
@@ -37,7 +37,12 @@ public class TaskHandling
             // Updates tasks Description and UpdatedAt accordingly, then saves the file
             IdTasks[taskId].Description = description;
             IdTasks[taskId].UpdatedAt = DateTime.Now;
+            Console.WriteLine($"Task updated successfully (ID: {taskId})");
             FileHandling.SaveToFile();
+        }
+        else
+        {
+            Console.WriteLine($"Task with ID: {taskId} not found");
         }
     }
 
@@ -47,8 +52,12 @@ public class TaskHandling
         if (IdTasks.ContainsKey(taskId))
         {
             IdTasks.Remove(taskId);
-            Console.WriteLine("Task removed");
+            Console.WriteLine($"Task removed successfully (ID: {taskId})");
             FileHandling.SaveToFile();
+        }
+        else
+        {
+            Console.WriteLine($"Task with ID: {taskId} not found");
         }
     }
     // Status manipulaton methods
@@ -56,6 +65,7 @@ public class TaskHandling
     {
         newStatus = StatusSwitch(taskId, newStatus);
         Console.WriteLine($"Status chnaged for task {taskId}, new status is {IdTasks[taskId].TaskStatus}");
+        FileHandling.SaveToFile();
     }
 
     private static string StatusSwitch(int taskId, string newStatus)
@@ -65,7 +75,7 @@ public class TaskHandling
         {
             switch (newStatus)
             {
-                case "to-do":
+                case "todo":
                     IdTasks[taskId].TaskStatus = Enums.TaskTrackerStatus.ToDo;
                     IdTasks[taskId].UpdatedAt = DateTime.Now;
                     break;
@@ -73,15 +83,15 @@ public class TaskHandling
                     IdTasks[taskId].TaskStatus = Enums.TaskTrackerStatus.InProgress;
                     IdTasks[taskId].UpdatedAt = DateTime.Now;
                     break;
-                case "completed":
-                    IdTasks[taskId].TaskStatus = Enums.TaskTrackerStatus.Completed;
+                case "done":
+                    IdTasks[taskId].TaskStatus = Enums.TaskTrackerStatus.Done;
                     IdTasks[taskId].UpdatedAt = DateTime.Now;
                     break;
             }
         }
         else
         {
-            throw new Exception("Task id not found");
+            Console.WriteLine($"Task with ID: {taskId} not found");
         }
 
         return newStatus;
@@ -93,12 +103,14 @@ public class TaskHandling
     {
         // Prases string into Enums.TaskTrackerStatus
         Enums.TaskTrackerStatus enumTaskStatus = TrackerStatusPraser(taskStatus);
+
         Console.WriteLine($"{enumTaskStatus} tasks:");
         foreach (KeyValuePair<int, Task> task in IdTasks)
         {
             if (task.Value.TaskStatus == enumTaskStatus)
             {
-                Console.WriteLine($"{task.Key} : {task.Value.Description} \nCreated at: {task.Value.CreatedAt}\nUpdated at: {task.Value.UpdatedAt}\nTask status: {task.Value.TaskStatus}");
+                Console.WriteLine("-----------------");
+                Console.WriteLine($"ID: {task.Key} \nDescription: {task.Value.Description} \nCreated at: {task.Value.CreatedAt}\nUpdated at: {task.Value.UpdatedAt}\nTask status: {task.Value.TaskStatus}");
             }
         }
     }
@@ -109,12 +121,12 @@ public class TaskHandling
         taskStatus = taskStatus.ToLower();
         switch (taskStatus)
         {
-            case "to-do":
+            case "todo":
                 return Enums.TaskTrackerStatus.ToDo;
             case "in-progress":
                 return Enums.TaskTrackerStatus.InProgress;
-            case "completed":
-                return Enums.TaskTrackerStatus.Completed;
+            case "done":
+                return Enums.TaskTrackerStatus.Done;
             default:
                 Console.WriteLine("invalid input");
                 break;
@@ -123,9 +135,23 @@ public class TaskHandling
     }
     public static void ShowAllTasks()
     {
-        foreach(KeyValuePair<int, Task> task in IdTasks)
+        foreach (KeyValuePair<int, Task> task in IdTasks)
         {
-            Console.WriteLine($"{task.Key} : {task.Value.Description} \nCreated at: {task.Value.CreatedAt}\nUpdated at: {task.Value.UpdatedAt}");
+            Console.WriteLine("-----------------");
+            Console.WriteLine($"ID: {task.Key} \nDescription: {task.Value.Description} \nCreated at: {task.Value.CreatedAt}\nUpdated at: {task.Value.UpdatedAt}");
+        }
+    }
+
+    public static void ShowTask(int taskId)
+    {
+        if (IdTasks.ContainsKey(taskId)) 
+        {
+            Console.WriteLine("-----------------");
+            Console.WriteLine($"ID: {taskId} \nDescription: {IdTasks[taskId].Description} \nStatus: {IdTasks[taskId].TaskStatus}\nCreated at: {IdTasks[taskId].CreatedAt}\nUpdated at: {IdTasks[taskId].UpdatedAt}");
+        }
+        else
+        {
+            Console.WriteLine($"Task with ID: {taskId} not found");
         }
     }
 }
